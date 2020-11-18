@@ -7,8 +7,8 @@ This application uses a Synchronous Express workflow to analyse a contact form s
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders:
 
-- functions - Code for the application's Lambda functions to check the value of, buy, or sell shares of a stock.
-- statemachines - Definition for the state machine that orchestrates the stock trading workflow.
+- functions - Code for the application's Lambda functions.
+- statemachines - Definition for the state machine that orchestrates AWS services.
 - template.yaml - A template that defines the application's AWS resources.
 - api.yaml - A template that defines the application's HTTP API resource.
 
@@ -74,20 +74,11 @@ To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs`
 `NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
 ```bash
-contact-form-processing-with-sync-express-workflows$ sam logs -n StockCheckerFunction --stack-name contact-form-processing-with-sync-express-workflows --tail
+contact-form-processing-with-sync-express-workflows$ sam logs -n GenerateRefernceNumber --stack-name contact-form-processing-with-sync-express-workflows --tail
 ```
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
 
-## Unit tests
-
-Tests are defined in the `functions/*/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests.
-
-```bash
-contact-form-processing-with-sync-express-workflows$ cd functions/stock-checker
-stock-checker$ npm install
-stock-checker$ npm run test
-```
 
 ## Cleanup
 
