@@ -1,0 +1,113 @@
+{
+    "Comment": "A parralell processing example of a serverless form processor",
+    "StartAt": "Detect Sentiment",
+    "States": {
+        "Detect Sentiment": {
+            "Type": "Task",
+            "Resource": "${DetectSentimentArn}",
+            "ResultPath":"$.SentimentResults",
+            "Parameters": {
+                "message.$": "$.message"
+            },
+            "Retry": [
+                {
+                    "ErrorEquals": [
+                        "States.TaskFailed"
+                    ],
+                    "IntervalSeconds": 20,
+                    "MaxAttempts": 5,
+                    "BackoffRate": 10
+                }
+            ],
+            "Next": "Generate Customer Reference Number"
+        },
+
+        "Generate Customer Reference Number": {
+            "Type": "Task",
+            "Resource": "${GenerateRefernceNumberArn}",
+            "ResultPath":"$.ticketId",
+            "Parameters": {
+                "message.$": "$.message"
+            },
+            "Retry": [
+                {
+                    "ErrorEquals": [
+                        "States.TaskFailed"
+                    ],
+                    "IntervalSeconds": 20,
+                    "MaxAttempts": 5,
+                    "BackoffRate": 10
+                }
+            ],
+            "Next": "Record Transaction"
+
+        },
+
+        "Record Transaction": {
+            "Type": "Task",
+            "Resource": "${DDBPutItem}",
+            "Parameters": {
+                "TableName": "${DDBTable}",
+                "Item": {
+                    "formId": {
+                        "S.$": "$.ticketId"
+                    },
+                    "formData": {
+                        "S.$": "States.JsonToString($)"
+                    },
+                    "sentiment": {
+                        "S.$": "States.JsonToString($.SentimentResults.Sentiment)"
+                    }
+                }
+            },
+            "Retry": [
+                {
+                    "ErrorEquals": [
+                        "States.TaskFailed"
+                    ],
+                    "IntervalSeconds": 20,
+                    "MaxAttempts": 5,
+                    "BackoffRate": 10
+                }
+            ],
+            "ResultPath":"$.ddbPutResult",
+            "Next": "Good Or Bad?"
+
+        },
+
+        "Good Or Bad?":{
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Variable":"$.SentimentResults.Sentiment",
+                    "StringEquals": "NEGATIVE",
+                    "Next":"Bad"
+                },
+                {
+                    "Variable":"$.SentimentResults.Sentiment",
+                    "StringEquals": "POSITIVE",
+                    "Next":"Not Bad"
+                }
+            ],
+            "Default": "Not Bad"
+        },
+
+        "Not Bad":{
+            "Type": "Succeed",
+            "Comment": "not a negative message"
+        },
+
+        "Bad":{
+            "Type": "Pass",
+            "Comment": "Negative sentiment",
+            "Next": "Notify Admin by Email"
+        },
+
+        "Notify Admin by Email": {
+            "Type": "Task",
+            "Resource": "${NotifyAdminWithSESArn}",
+            "ResultPath":"$.SESOutput",
+            "End": true
+        }
+    }
+}

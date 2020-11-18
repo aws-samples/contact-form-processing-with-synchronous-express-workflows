@@ -1,0 +1,11 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "formUpload"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-10szd0e2229ug"
+s3_prefix = "formUpload"
+region = "us-west-2"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "ValidatedEmail=\"benjasl@amazon.com\""
+
