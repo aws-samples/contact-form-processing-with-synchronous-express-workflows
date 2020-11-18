@@ -1,4 +1,9 @@
-# sync-express-wf
+# Contact form processing with Synchronous Express Workflows
+
+This application uses a Synchronous Express workflow to analyse a contact form submission and provide customers with a case reference number.
+
+![enter image description here](resources/contact-form-processing-with-sync-express-workflows.png)
+
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders:
 
@@ -7,11 +12,10 @@ This project contains source code and supporting files for a serverless applicat
 - template.yaml - A template that defines the application's AWS resources.
 - api.yaml - A template that defines the application's HTTP API resource.
 
-This application uses a Synchronous Express workflow to analyse a contact form submission and provide customers with a case reference number.
 
 AWS Step Functions lets you coordinate multiple AWS services into serverless workflows so you can build and update apps quickly. Using Step Functions, you can design and run workflows that stitch together services, such as AWS Lambda, AWS Fargate, and Amazon SageMaker, into feature-rich applications.
 
-The application uses several AWS resources, including Step Functions Express Workflows, Lambda functions, Amazon Comprehend and Amazon Simple Email service. These resources are defined in the `template.yaml` file in this project. You can update the template to add AWS resources through the same deployment process that updates your application code.
+The application uses several AWS resources, including Step Functions Express Workflows, API Gateway, Amazon DynamoDB, Lambda functions, Amazon Comprehend and Amazon Simple Email service. These resources are defined in the `template.yaml` file in this project. You can update the template to add AWS resources through the same deployment process that updates your application code.
 
 If you prefer to use an integrated development environment (IDE) to build and test the Lambda functions within your application, you can use the AWS Toolkit. The AWS Toolkit is an open source plug-in for popular IDEs that uses the SAM CLI to build and deploy serverless applications on AWS. The AWS Toolkit also adds a simplified step-through debugging experience for Lambda function code. See the following links to get started:
 
@@ -55,7 +59,7 @@ You can find your State Machine ARN in the output values displayed after deploym
 Build the Lambda functions in your application with the `sam build --use-container` command.
 
 ```bash
-sync-express-wf$ sam build
+contact-form-processing-with-sync-express-workflows$ sam build
 ```
 
 The SAM CLI installs dependencies defined in `functions/*/package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
@@ -70,7 +74,7 @@ To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs`
 `NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
 ```bash
-sync-express-wf$ sam logs -n StockCheckerFunction --stack-name sync-express-wf --tail
+contact-form-processing-with-sync-express-workflows$ sam logs -n StockCheckerFunction --stack-name contact-form-processing-with-sync-express-workflows --tail
 ```
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
@@ -80,7 +84,7 @@ You can find more information and examples about filtering Lambda function logs 
 Tests are defined in the `functions/*/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests.
 
 ```bash
-sync-express-wf$ cd functions/stock-checker
+contact-form-processing-with-sync-express-workflows$ cd functions/stock-checker
 stock-checker$ npm install
 stock-checker$ npm run test
 ```
@@ -90,7 +94,7 @@ stock-checker$ npm run test
 To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
 
 ```bash
-aws cloudformation delete-stack --stack-name sync-express-wf
+aws cloudformation delete-stack --stack-name contact-form-processing-with-sync-express-workflows
 ```
 
 ## Resources
