@@ -127,11 +127,6 @@ Resources:
             - Effect: Allow
               Action: "states:StartSyncExecution"
               Resource: !GetAtt ProcessFormStateMachineExpressSync.Arn
-            - Effect: Allow
-              Action: "states:StartExecution"
-              Resource: !GetAtt ProcessFormStateMachineExpressSync.Arn
-
-
 ##########################################################################
 #   Outputs                                                              #
 ##########################################################################
@@ -145,5 +140,6 @@ Outputs:
   FormDataTable:
     Description: DynamoDB Table
     Value: !Ref FormDataTable
+
 
 
