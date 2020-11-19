@@ -19,23 +19,6 @@ paths:
         payloadFormatVersion: "1.0"
         type: "aws_proxy"
         connectionType: "INTERNET"
-
-  /async:
-    post:
-      responses:
-        default:
-          description: "Default response for POST /"
-      x-amazon-apigateway-integration:
-        integrationSubtype: "StepFunctions-StartExecution"
-        credentials:
-          Fn::GetAtt: [HttpApiRole, Arn]
-        requestParameters:
-          Input: "$request.body"
-          StateMachineArn: 
-            Fn::GetAtt: [ProcessFormStateMachineExpressSync, Arn] 
-        payloadFormatVersion: "1.0"
-        type: "aws_proxy"
-        connectionType: "INTERNET"
 x-amazon-apigateway-cors:
   allowMethods:
   - "*"
