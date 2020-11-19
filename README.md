@@ -2,7 +2,7 @@
 
 This application uses a Synchronous Express workflow to analyse a contact form submission and provide customers with a case reference number.
 
-Read more about Synchronous Express Workflows in this [AWS blog post](https://aws.amazon.com/blogs/compute/new-synchronous-express-workflows-for-aws-step-functions/)
+Read more about Synchronous Express Workflows in this [AWS blog post](https://aws.amazon.com/blogs/compute/new-synchronous-express-workflows-for-aws-step-functions/).
 
 ![enter image description here](resources/contact-form-processing-with-sync-express-workflows.png)
 
