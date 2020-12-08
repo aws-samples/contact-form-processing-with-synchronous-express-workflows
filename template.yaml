@@ -17,6 +17,9 @@ Parameters:
 Globals:
   Function:
     Timeout: 10
+    Handler: index.handler
+    Runtime: nodejs12.x
+    MemorySize: 128
 Resources:
 ##########################################################################
 #  Dynamo DB Table                                                      #
@@ -38,9 +41,6 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: functions/sendEmailConfirmation/
-      Handler: index.handler
-      Runtime: nodejs12.x
-      MemorySize: 128
       Environment:
         Variables:
           ValidatedEmail: !Ref ValidatedEmail
@@ -53,17 +53,11 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: functions/GenerateRefernceNumber/
-      Handler: index.handler
-      Runtime: nodejs12.x
-      MemorySize: 128
 
   DetectSentiment:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: functions/detectSentiment/
-      Handler: index.handler
-      Runtime: nodejs12.x
-      MemorySize: 128
       Policies:
         - ComprehendBasicAccessPolicy: {}
 ##########################################################################
