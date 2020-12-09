@@ -44,7 +44,6 @@ Resources:
       Environment:
         Variables:
           ValidatedEmail: !Ref ValidatedEmail
-          FormDataTable: !Ref FormDataTable
       Policies:
         - SESCrudPolicy:
             IdentityName: !Ref ValidatedEmail  
