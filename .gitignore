@@ -129,3 +129,4 @@ $RECYCLE.BIN/
 # End of https://www.gitignore.io/api/osx,node,linux,windows
 
 *.toml
+.aws-sam

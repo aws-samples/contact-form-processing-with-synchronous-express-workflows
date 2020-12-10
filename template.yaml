@@ -134,6 +134,8 @@ Outputs:
   FormDataTable:
     Description: DynamoDB Table
     Value: !Ref FormDataTable
-
+  HelloWorldApi:
+    Description: "Sync WF API endpoint"
+    Value: !Sub "https://${HttpApiforSyncWF}.execute-api.${AWS::Region}.amazonaws.com"
 
 
