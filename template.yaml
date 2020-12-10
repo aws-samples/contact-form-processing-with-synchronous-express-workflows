@@ -17,9 +17,6 @@ Parameters:
 Globals:
   Function:
     Timeout: 10
-    Handler: index.handler
-    Runtime: nodejs12.x
-    MemorySize: 128
 Resources:
 ##########################################################################
 #  Dynamo DB Table                                                      #
@@ -40,25 +37,37 @@ Resources:
   NotifyAdminWithSES:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: functions/sendEmailConfirmation/
+      PackageType: Image
       Environment:
         Variables:
           ValidatedEmail: !Ref ValidatedEmail
       Policies:
         - SESCrudPolicy:
-            IdentityName: !Ref ValidatedEmail  
+            IdentityName: !Ref ValidatedEmail
+    Metadata:
+      DockerTag: nodejs12.x-v2
+      DockerContext: ./functions/sendEmailConfirmation
+      Dockerfile: Dockerfile 
  
   GenerateRefernceNumber:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: functions/GenerateRefernceNumber/
+      PackageType: Image
+    Metadata:
+      DockerTag: nodejs12.x-v2
+      DockerContext: ./functions/GenerateRefernceNumber
+      Dockerfile: Dockerfile 
 
   DetectSentiment:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: functions/detectSentiment/
+      PackageType: Image
       Policies:
         - ComprehendBasicAccessPolicy: {}
+    Metadata:
+      DockerTag: nodejs12.x-v2
+      DockerContext: ./functions/detectSentiment
+      Dockerfile: Dockerfile 
 ##########################################################################
 #   STEP FUNCTION                                                        #
 ##########################################################################

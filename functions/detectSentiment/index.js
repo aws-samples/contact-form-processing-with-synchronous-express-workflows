@@ -4,13 +4,14 @@ SPDX-License-Identifier: MIT-0
 */
 
 var AWS = require('aws-sdk');
-var comprehend = new AWS.Comprehend({apiVersion: '2017-11-27'});        
+var comprehend = new AWS.Comprehend({ apiVersion: '2017-11-27' });
 
 exports.handler = async(event, context) => {
 
     const subject = event;
-    var params =    {  LanguageCode: 'en', /* required */
-                        Text: event.message /* required */
+    var params = {
+        LanguageCode: 'en', /* required */
+        Text: event.message /* required */
     }
     try {
         var data = await comprehend.detectSentiment(params).promise();
