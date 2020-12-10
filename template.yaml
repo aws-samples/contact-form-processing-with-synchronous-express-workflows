@@ -20,6 +20,7 @@ Globals:
     Handler: index.handler
     Runtime: nodejs12.x
     MemorySize: 128
+    Tracing: Active
 Resources:
 ##########################################################################
 #  Dynamo DB Table                                                      #
@@ -67,6 +68,8 @@ Resources:
     Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
     Properties:
       DefinitionUri: statemachine/formStateMachine.asl.json
+      Tracing:
+        Enabled: true
       DefinitionSubstitutions:
         NotifyAdminWithSESArn: !GetAtt NotifyAdminWithSES.Arn
         GenerateRefernceNumberArn: !GetAtt GenerateRefernceNumber.Arn
