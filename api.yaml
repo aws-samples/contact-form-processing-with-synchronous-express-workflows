@@ -21,7 +21,9 @@ paths:
         connectionType: "INTERNET"
 x-amazon-apigateway-cors:
   allowMethods:
-  - "*"
+  - "POST"
+  allowHeaders:
+  - "content-type"
   maxAge: 0
   allowCredentials: false
   allowOrigins:
