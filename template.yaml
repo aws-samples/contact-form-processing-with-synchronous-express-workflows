@@ -139,8 +139,8 @@ Outputs:
   HelloWorldApi:
     Description: "Sync WF API endpoint"
     Value: !Sub "https://${HttpApiforSyncWF}.execute-api.${AWS::Region}.amazonaws.com"
-  StepFunction:
-    Description: "Step function"
+  StepFunctions:
+    Description: "Step Functions"
     Value: !GetAtt ProcessFormStateMachineExpressSync.Arn
 
 
