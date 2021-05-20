@@ -1,5 +1,5 @@
 {
-    "Comment": "A parralell processing example of a serverless form processor",
+    "Comment": "A parallel processing example of a serverless form processor",
     "StartAt": "Detect Sentiment",
     "States": {
         "Detect Sentiment": {
