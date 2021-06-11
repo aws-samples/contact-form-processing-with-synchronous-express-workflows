@@ -15,7 +15,7 @@ const headers = {
 }
 
 exports.handler = async(event, context) => {
-    const formData = JSON.stringify(event.message,null,2)
+    const formData = JSON.stringify(event,null,2)
         // Build params for SES
         const emailParams = {
           Source: process.env.ValidatedEmail, // SES SENDING EMAIL

@@ -17,6 +17,10 @@ Parameters:
 Globals:
   Function:
     Timeout: 10
+    Handler: index.handler
+    Runtime: nodejs12.x
+    MemorySize: 128
+    Tracing: Active
 Resources:
 ##########################################################################
 #  Dynamo DB Table                                                      #
@@ -38,13 +42,9 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: functions/sendEmailConfirmation/
-      Handler: index.handler
-      Runtime: nodejs12.x
-      MemorySize: 128
       Environment:
         Variables:
           ValidatedEmail: !Ref ValidatedEmail
-          FormDataTable: !Ref FormDataTable
       Policies:
         - SESCrudPolicy:
             IdentityName: !Ref ValidatedEmail  
@@ -53,17 +53,11 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: functions/GenerateRefernceNumber/
-      Handler: index.handler
-      Runtime: nodejs12.x
-      MemorySize: 128
 
   DetectSentiment:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: functions/detectSentiment/
-      Handler: index.handler
-      Runtime: nodejs12.x
-      MemorySize: 128
       Policies:
         - ComprehendBasicAccessPolicy: {}
 ##########################################################################
@@ -73,7 +67,9 @@ Resources:
   ProcessFormStateMachineExpressSync:
     Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
     Properties:
-      DefinitionUri: statemachine/sfn-template.asl.json
+      DefinitionUri: statemachine/formStateMachine.asl.json
+      Tracing:
+        Enabled: true
       DefinitionSubstitutions:
         NotifyAdminWithSES: !Ref NotifyAdminWithSES
         GenerateRefernceNumber: !Ref GenerateRefernceNumber
@@ -130,17 +126,20 @@ Resources:
 #   Outputs                                                              #
 ##########################################################################
 Outputs:
-  HttpApiEndpoint:
-    Description: URL of your API endpoint
-    Value:
-      Fn::Sub: 'https://${HttpApiforSyncWF}.execute-api.${AWS::Region}.${AWS::URLSuffix}/'
-  WorkflowArn:
-    Description: 'The ARN of your Synchronous Express workflow'
+  NotifyAdminWithSES:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt NotifyAdminWithSES.Arn
+  NotifyAdminWithSESIamRole:
+    Description: "Implicit IAM Role created for function"
+    Value: !GetAtt NotifyAdminWithSESRole.Arn  
+  FormDataTable:
+    Description: DynamoDB Table
+    Value: !Ref FormDataTable
+  HelloWorldApi:
+    Description: "Sync WF API endpoint"
+    Value: !Sub "https://${HttpApiforSyncWF}.execute-api.${AWS::Region}.amazonaws.com"
+  StepFunctions:
+    Description: "Step Functions"
     Value: !GetAtt ProcessFormStateMachineExpressSync.Arn
-
-
-    
-  
-
 
 
