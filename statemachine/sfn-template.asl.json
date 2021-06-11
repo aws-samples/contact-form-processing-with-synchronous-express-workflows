@@ -1,0 +1,126 @@
+{
+    "Comment": "A serverless form processor with a number of useful reference components",
+    "StartAt": "Detect Sentiment ",
+    "States": {
+      "Detect Sentiment ": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::lambda:invoke",
+        "Parameters": {
+          "FunctionName": "${DetectSentiment}",  
+          "Payload.$": "$"
+        },
+        "Retry": [
+          {
+            "ErrorEquals": [
+              "Lambda.ServiceException",
+              "Lambda.AWSLambdaException",
+              "Lambda.SdkClientException"
+            ],
+            "IntervalSeconds": 2,
+            "MaxAttempts": 6,
+            "BackoffRate": 2
+          }
+        ],
+        "Next": "Generate Customer Reference Number",
+        "ResultPath": "$.SentimentResults"
+      },
+      "Generate Customer Reference Number": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::lambda:invoke",
+        "Parameters": {
+          "FunctionName": "${GenerateRefernceNumber}"
+        },
+        "Retry": [
+          {
+            "ErrorEquals": [
+              "Lambda.ServiceException",
+              "Lambda.AWSLambdaException",
+              "Lambda.SdkClientException"
+            ],
+            "IntervalSeconds": 2,
+            "MaxAttempts": 6,
+            "BackoffRate": 2
+          }
+        ],
+        "Next": "Record Transaction",
+        "ResultPath": "$.ticketId"
+      },
+      "Record Transaction": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::dynamodb:putItem",
+        "Parameters": {
+          "TableName": "${DDBTable}",
+          "Item": {
+            "formId": {
+              "S.$": "$.ticketId.Payload"
+            },
+            "formData": {
+              "S.$": "States.JsonToString($.message)"
+            },
+            "sentiment": {
+              "S.$": "States.JsonToString($.SentimentResults.Payload.Sentiment)"
+            }
+          }
+        },
+        "Retry": [
+          {
+            "ErrorEquals": [
+              "States.TaskFailed"
+            ],
+            "IntervalSeconds": 20,
+            "MaxAttempts": 5,
+            "BackoffRate": 10
+          }
+        ],
+        "ResultPath": "$.ddbPutResult",
+        "Next": "Good Or Bad?"
+      },
+      "Good Or Bad?": {
+        "Type": "Choice",
+        "Choices": [
+          {
+            "Variable": "$.SentimentResults.Payload.Sentiment",
+            "StringEquals": "NEGATIVE",
+            "Next": "Bad"
+          },
+          {
+            "Variable": "$.SentimentResults.Payload.Sentiment",
+            "StringEquals": "POSITIVE",
+            "Next": "Not Bad"
+          }
+        ],
+        "Default": "Not Bad"
+      },
+      "Not Bad": {
+        "Type": "Succeed",
+        "Comment": "not a negative message"
+      },
+      "Bad": {
+        "Type": "Pass",
+        "Comment": "Negative sentiment",
+        "Next": "Notify Admin By Email"
+      },
+      "Notify Admin By Email": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::lambda:invoke",
+        "Parameters": {
+          "Payload.$": "$",
+          "FunctionName": "${NotifyAdminWithSES}"
+        },
+        "Retry": [
+          {
+            "ErrorEquals": [
+              "Lambda.ServiceException",
+              "Lambda.AWSLambdaException",
+              "Lambda.SdkClientException"
+            ],
+            "IntervalSeconds": 2,
+            "MaxAttempts": 6,
+            "BackoffRate": 2
+          }
+        ],
+        "ResultPath": "$.SESOutput",
+        "End": true
+      }
+    }
+  }

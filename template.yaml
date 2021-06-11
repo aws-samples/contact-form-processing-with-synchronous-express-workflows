@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Serverless Form Handler - accepts a form submission from a webpage, saving the data to a DynamoDB, this also creates a Step functions State machine which and a Lambda function that sends an email via SES. You will need to add/edit the API integration to trigger the Step function
+  Serverless Form Handler - it accepts a form submission from a webpage, saving the data to a DynamoDB, this also creates a Step functions State machine which and a Lambda function that sends an email via SES. You will need to add/edit the API integration to trigger the Step function
 ##########################################################################
 #  Parameters & Globals                                                  #
 ##########################################################################
@@ -73,12 +73,11 @@ Resources:
   ProcessFormStateMachineExpressSync:
     Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
     Properties:
-      DefinitionUri: statemachine/formStateMachine.asl.json
+      DefinitionUri: statemachine/sfn-template.asl.json
       DefinitionSubstitutions:
-        NotifyAdminWithSESArn: !GetAtt NotifyAdminWithSES.Arn
-        GenerateRefernceNumberArn: !GetAtt GenerateRefernceNumber.Arn
-        DetectSentimentArn: !GetAtt DetectSentiment.Arn
-        DDBPutItem: !Sub arn:${AWS::Partition}:states:::dynamodb:putItem
+        NotifyAdminWithSES: !Ref NotifyAdminWithSES
+        GenerateRefernceNumber: !Ref GenerateRefernceNumber
+        DetectSentiment: !Ref DetectSentiment
         DDBTable: !Ref FormDataTable
       Policies: # Find out more about SAM policy templates: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
         - LambdaInvokePolicy:
@@ -131,15 +130,17 @@ Resources:
 #   Outputs                                                              #
 ##########################################################################
 Outputs:
-  NotifyAdminWithSES:
-    Description: "Lambda Function ARN"
-    Value: !GetAtt NotifyAdminWithSES.Arn
-  NotifyAdminWithSESIamRole:
-    Description: "Implicit IAM Role created for function"
-    Value: !GetAtt NotifyAdminWithSESRole.Arn  
-  FormDataTable:
-    Description: DynamoDB Table
-    Value: !Ref FormDataTable
+  HttpApiEndpoint:
+    Description: URL of your API endpoint
+    Value:
+      Fn::Sub: 'https://${HttpApiforSyncWF}.execute-api.${AWS::Region}.${AWS::URLSuffix}/'
+  WorkflowArn:
+    Description: 'The ARN of your Synchronous Express workflow'
+    Value: !GetAtt ProcessFormStateMachineExpressSync.Arn
+
+
+    
+  
 
 
 
