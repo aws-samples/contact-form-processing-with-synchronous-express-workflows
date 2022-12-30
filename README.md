@@ -9,7 +9,7 @@ Read more about Synchronous Express Workflows in this [AWS blog post](https://aw
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders:
 
-- functions - Code for the application's Lambda functions.
+- functions - Code for the application's Lambda function.
 - statemachines - Definition for the state machine that orchestrates AWS services.
 - template.yaml - A template that defines the application's AWS resources.
 - api.yaml - A template that defines the application's HTTP API resource.
@@ -35,7 +35,7 @@ The Serverless Application Model Command Line Interface (SAM CLI) is an extensio
 To use the SAM CLI, you need the following tools:
 
 * SAM CLI - [Install the SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
-* Node.js - [Install Node.js 12](https://nodejs.org/en/), including the NPM package management tool.
+* Node.js - [Install Node.js 16](https://nodejs.org/en/), including the NPM package management tool.
 * Docker - [Install Docker community edition](https://hub.docker.com/search/?type=edition&offering=community)
 
 To build and deploy your application for the first time, run the following in your shell:
