@@ -1,7 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Serverless Form Handler - it accepts a form submission from a webpage, saving the data to a DynamoDB, this also creates a Step functions State machine which and a Lambda function that sends an email via SES. You will need to add/edit the API integration to trigger the Step function
+  Serverless Form Handler - It accepts a form submission from a webpage, saving the data to a DynamoDB. This also creates a Step Functions State Machine that sends an email via SES. You will need to add/edit the API integration to trigger the Step Function.
+  
 ##########################################################################
 #  Parameters & Globals                                                  #
 ##########################################################################
@@ -18,10 +19,11 @@ Globals:
   Function:
     Timeout: 10
     Handler: index.handler
-    Runtime: nodejs12.x
+    Runtime: nodejs16.x
     MemorySize: 128
     Tracing: Active
 Resources:
+
 ##########################################################################
 #  Dynamo DB Table                                                      #
 ##########################################################################
@@ -35,35 +37,18 @@ Resources:
       - AttributeName: formId
         KeyType: HASH
       BillingMode: PAY_PER_REQUEST
+      
 ##########################################################################
-#  Lambda functions                                                      #
+#  Lambda Function                                                      #
 ##########################################################################
-  NotifyAdminWithSES:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Properties:
-      CodeUri: functions/sendEmailConfirmation/
-      Environment:
-        Variables:
-          ValidatedEmail: !Ref ValidatedEmail
-      Policies:
-        - SESCrudPolicy:
-            IdentityName: !Ref ValidatedEmail  
- 
   GenerateRefernceNumber:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: functions/GenerateRefernceNumber/
-
-  DetectSentiment:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Properties:
-      CodeUri: functions/detectSentiment/
-      Policies:
-        - ComprehendBasicAccessPolicy: {}
+      
 ##########################################################################
-#   STEP FUNCTION                                                        #
+#   Step Function                                                        #
 ##########################################################################
-
   ProcessFormStateMachineExpressSync:
     Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
     Properties:
@@ -71,25 +56,44 @@ Resources:
       Tracing:
         Enabled: true
       DefinitionSubstitutions:
-        NotifyAdminWithSES: !Ref NotifyAdminWithSES
         GenerateRefernceNumber: !Ref GenerateRefernceNumber
-        DetectSentiment: !Ref DetectSentiment
         DDBTable: !Ref FormDataTable
+        ValidatedEmail: !Ref ValidatedEmail
       Policies: # Find out more about SAM policy templates: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
-        - LambdaInvokePolicy:
-            FunctionName: !Ref NotifyAdminWithSES
-        - LambdaInvokePolicy:
-            FunctionName: !Ref DetectSentiment
         - LambdaInvokePolicy:
             FunctionName: !Ref GenerateRefernceNumber
         - DynamoDBWritePolicy:
             TableName: !Ref FormDataTable
+        - ComprehendBasicAccessPolicy: {} 
+        # CW Logs Policy
+        -  Version: "2012-10-17"
+           Statement:
+             - Effect: Allow
+               Action:
+                 - "cloudwatch:*"
+                 - "logs:*"
+               Resource: "*"
+        - SESCrudPolicy:
+            IdentityName: !Ref ValidatedEmail 
       Type: EXPRESS
+      Logging:
+        Destinations:
+          - CloudWatchLogsLogGroup:
+              LogGroupArn: !GetAtt StateMachineLogGroup.Arn
+        IncludeExecutionData: false
+        Level: 'ALL'
+
+##########################################################################
+#  Step Function Log Group                                              #
+##########################################################################
+  StateMachineLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join [ "/", [ "stepfunctions", ProcessFormStateMachineExpressSync]]
 
 ##########################################################################
 #   HTTP API                                                             #
 ##########################################################################
-
   HttpApiforSyncWF:
     Type: AWS::Serverless::HttpApi
     Properties:
@@ -122,16 +126,11 @@ Resources:
             - Effect: Allow
               Action: "states:StartSyncExecution"
               Resource: !GetAtt ProcessFormStateMachineExpressSync.Arn
+              
 ##########################################################################
 #   Outputs                                                              #
 ##########################################################################
 Outputs:
-  NotifyAdminWithSES:
-    Description: "Lambda Function ARN"
-    Value: !GetAtt NotifyAdminWithSES.Arn
-  NotifyAdminWithSESIamRole:
-    Description: "Implicit IAM Role created for function"
-    Value: !GetAtt NotifyAdminWithSESRole.Arn  
   FormDataTable:
     Description: DynamoDB Table
     Value: !Ref FormDataTable
